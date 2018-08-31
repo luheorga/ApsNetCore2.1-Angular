@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Sincosoft.Miraflores.Data;
+using Sincosoft.Miraflores.Data.Repositorios;
+using Sincosoft.Miraflores.Models;
 
 namespace Sincosoft.Miraflores
 {
@@ -22,26 +19,59 @@ namespace Sincosoft.Miraflores
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<MirafloresContext>(options =>
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            RegistrarRepositorios(services);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        private void RegistrarRepositorios(IServiceCollection services)
+        {
+            services.AddTransient<IRepositorio<Alumno>>(ctx =>
+            {
+                var dbContext = ctx.GetService<MirafloresContext>();
+                return new RepositorioEfAlumnos(dbContext);
+            }).AddTransient<IRepositorio<Materia>>(ctx =>
+            {
+                var dbContext = ctx.GetService<MirafloresContext>();
+                return new RepositorioEfMaterias(dbContext);
+            }).AddTransient<IRepositorio<Profesor>>(ctx =>
+            {
+                var dbContext = ctx.GetService<MirafloresContext>();
+                return new RepositorioEfProfesores(dbContext);
+            }).AddTransient<IRepositorio<Curso>>(ctx =>
+            {
+                var dbContext = ctx.GetService<MirafloresContext>();
+                return new RepositorioEfCursos(dbContext);
+            }).AddTransient<IRepositorio<Periodo>>(ctx =>
+            {
+                var dbContext = ctx.GetService<MirafloresContext>();
+                return new RepositorioEfPeriodos(dbContext);
+            });
+        }
+
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
+                InicializarBaseDeDatos(app);
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
             app.UseMvc();
+        }
+
+        private void InicializarBaseDeDatos(IApplicationBuilder app)
+        {
+            using (var ambitoServicios = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var contextoBd = ambitoServicios.ServiceProvider.GetService<MirafloresContext>();
+                contextoBd.Database.EnsureDeleted();
+                contextoBd.Database.EnsureCreated();
+            }
         }
     }
 }

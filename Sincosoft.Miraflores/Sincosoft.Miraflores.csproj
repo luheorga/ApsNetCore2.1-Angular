@@ -2,7 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TypeScriptToolsVersion>3.0</TypeScriptToolsVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Sincosoft.Miraflores.Spa\**" />
+    <Content Remove="Sincosoft.Miraflores.Spa\**" />
+    <EmbeddedResource Remove="Sincosoft.Miraflores.Spa\**" />
+    <None Remove="Sincosoft.Miraflores.Spa\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
@@ -10,6 +18,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.2" />
   </ItemGroup>
 
 </Project>
