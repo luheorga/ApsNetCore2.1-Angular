@@ -6,13 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Sincosoft.Miraflores.Spa\**" />
-    <Content Remove="Sincosoft.Miraflores.Spa\**" />
-    <EmbeddedResource Remove="Sincosoft.Miraflores.Spa\**" />
-    <None Remove="Sincosoft.Miraflores.Spa\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
